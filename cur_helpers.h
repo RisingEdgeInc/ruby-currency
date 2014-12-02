@@ -5,8 +5,8 @@
 #define MAX(a,b) (((a > b)) ? a : b)
 
 
-// Compare whether two currences are of the same type
-bool cur_code_cmp(VALUE self, VALUE other);
+/* Test whether two currences are of the same type */
+int cur_code_cmp(VALUE self, VALUE other);
 
 /* Compares the precision values of two Currency objects
   
@@ -15,4 +15,7 @@ bool cur_code_cmp(VALUE self, VALUE other);
    Returns -1 if other has a greater precision than self
 */
 int cur_precision_cmp(VALUE self, VALUE other);
+
+/* Adds thousands separators to a string representation of a value */
+void cur_ts_str(char *unformatted, char separator, char *formatted);
 #endif

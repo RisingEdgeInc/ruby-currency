@@ -2,9 +2,9 @@
 #include <string.h>
 #include "ruby.h"
 
+#include "currency.h"
+#include "cur_helpers.h"
 #include "cur_arithmetic.h"
-
-VALUE cCurrency;
 
 // Converters
 VALUE c_to_s(VALUE self);
@@ -18,15 +18,14 @@ VALUE c_value(VALUE self);
 // Initialization
 static VALUE c_init(VALUE klass, VALUE amount);
 
-// Private helpers
-void fmt_thousands_sep(char* unformatted, char separator, char* formatted);
-
-VALUE c_to_i(VALUE self)
+VALUE 
+c_to_i(VALUE self)
 {
   return rb_iv_get(self, "@value");
 }
 
-VALUE c_to_f(VALUE self)
+VALUE 
+c_to_f(VALUE self)
 {
   long long value = NUM2LL(rb_iv_get(self, "@value"));
   int precision = NUM2INT(rb_iv_get(self, "@precision"));
@@ -34,7 +33,8 @@ VALUE c_to_f(VALUE self)
   return rb_float_new(f_value);
 }
 
-VALUE c_to_s(VALUE self)
+VALUE 
+c_to_s(VALUE self)
 {
   char *u_dec_left;
   char *formatted = ALLOC_N(char, 256);
@@ -57,7 +57,7 @@ VALUE c_to_s(VALUE self)
   VALUE v_thousands_sep = rb_iv_get(self, "@thousands_separator");
   char *thousands_sep = StringValueCStr(v_thousands_sep);
   
-  fmt_thousands_sep(u_dec_left, thousands_sep[0], formatted); 
+  cur_ts_str(u_dec_left, thousands_sep[0], formatted); 
 
   char *neg = (value > 0 ? "" : "-");
   VALUE r_val = rb_sprintf("%s%s%s%s%.2lld", neg, symbol, formatted, decimal_pt, fraction);
@@ -66,45 +66,29 @@ VALUE c_to_s(VALUE self)
 //    return r_val;
 }
 
-VALUE c_value(VALUE self)
+VALUE
+c_value(VALUE self)
 {
   return rb_iv_get(self, "@value");
 }
 
-// Private helpers
-void fmt_thousands_sep(char *unformatted, char separator, char *formatted)
-{
-    int u_pos = strlen(unformatted);
-    int seps = u_pos / 3;
-    if(u_pos % 3 == 0) { seps--; }
-    int f_pos = u_pos + seps;
-    int d_count = 0;
-    
-    while(f_pos >= 0)
-    {
-        formatted[f_pos--] = unformatted[u_pos--];
-        if( (d_count > 0) && (d_count % 3 == 0) )
-        {
-            formatted[f_pos--] = separator;
-        }
-        d_count++;
-    }
-}
-
-VALUE c_set_precision(VALUE self, VALUE new_precision)
+VALUE
+c_set_precision(VALUE self, VALUE new_precision)
 {
   rb_iv_set(self, "@precision", new_precision);
   return self;
 }
 
-VALUE c_set_code(VALUE self, VALUE new_code)
+VALUE 
+c_set_code(VALUE self, VALUE new_code)
 {
   rb_iv_set(self, "@code", new_code);
   return self;
 }
 
 // Intialization
-static VALUE c_init(VALUE self, VALUE amount)
+static VALUE 
+c_init(VALUE self, VALUE amount)
 {
   rb_iv_set(self, "@symbol", rb_str_new2("$"));
   rb_iv_set(self, "@code", rb_str_new2("USD"));
@@ -116,7 +100,8 @@ static VALUE c_init(VALUE self, VALUE amount)
   return self;
 }
 
-void Init_Currency()
+void 
+Init_Currency()
 {
   cCurrency = rb_define_class("Currency", rb_cObject);
   rb_define_method(cCurrency, "initialize", c_init, 1);

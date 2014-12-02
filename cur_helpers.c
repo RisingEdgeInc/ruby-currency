@@ -3,7 +3,7 @@
 
 #include "cur_helpers.h"
 
-bool
+int
 cur_code_cmp(VALUE self, VALUE other)
 {
   VALUE v_other_code = rb_iv_get(other, "@code");
@@ -28,4 +28,24 @@ cur_precision_cmp(VALUE self, VALUE other)
   } else {
     return 0;
   }
+}
+
+void
+cur_ts_str(char *unformatted, char separator, char *formatted)
+{
+    int u_pos = strlen(unformatted);
+    int seps = u_pos / 3;
+    if(u_pos % 3 == 0) { seps--; }
+    int f_pos = u_pos + seps;
+    int d_count = 0;
+    
+    while(f_pos >= 0)
+    {
+        formatted[f_pos--] = unformatted[u_pos--];
+        if( (d_count > 0) && (d_count % 3 == 0) )
+        {
+            formatted[f_pos--] = separator;
+        }
+        d_count++;
+    }
 }
